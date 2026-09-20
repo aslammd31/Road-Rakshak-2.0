@@ -7,13 +7,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # =====================================================
-# LOAD ENVIRONMENT VARIABLES
+# LOAD GEMINI API KEY
 # =====================================================
-load_dotenv()  # loads .env file
+load_dotenv()
 
-API_KEY = os.getenv("GOOGLE_API_KEY")
+API_KEY = st.secrets.get("GOOGLE_API_KEY") or os.getenv("GOOGLE_API_KEY")
+
 if not API_KEY:
-    st.error("❌ GOOGLE_API_KEY not found. Please check your .env file.")
+    st.error("❌ GOOGLE_API_KEY not found.")
     st.stop()
 
 genai.configure(api_key=API_KEY)
