@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Road Rakshak 2.0</title>
+
+    <meta name="description"
+          content="Road Rakshak 2.0 - AI Powered Road Safety Reporting System">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            text-align: center;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 50px 30px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        .icon {
+            font-size: 70px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .highlight {
+            color: #38bdf8;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #cbd5e1;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            max-width: 650px;
+            margin: 0 auto 35px;
+            line-height: 1.7;
+            color: #94a3b8;
+            font-size: 16px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 20px 10px;
+            border-radius: 15px;
+        }
+
+        .feature-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .feature h3 {
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .feature p {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .launch-button {
+            display: inline-block;
+            text-decoration: none;
+            background: #22c55e;
+            color: white;
+            padding: 16px 35px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: 0.3s ease;
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.25);
+        }
+
+        .launch-button:hover {
+            transform: translateY(-3px);
+            background: #16a34a;
+            box-shadow: 0 12px 30px rgba(34, 197, 94, 0.35);
+        }
+
+        .github-button {
+            display: inline-block;
+            margin-left: 10px;
+            text-decoration: none;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s ease;
+        }
+
+        .github-button:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 650px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 17px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .github-button {
+                margin-left: 0;
+                margin-top: 12px;
+            }
+
+            .card {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="card">
+
+            <div class="icon">🚦</div>
+
+            <h1>
+                Road <span class="highlight">Rakshak 2.0</span>
+            </h1>
+
+            <p class="subtitle">
+                AI Powered Road Safety Reporting System
+            </p>
+
+            <p class="description">
+                Road Rakshak 2.0 uses Artificial Intelligence to help identify
+                road safety issues, analyze images, detect hazards and generate
+                civic reports for safer roads.
+            </p>
+
+            <div class="features">
+
+                <div class="feature">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI Detection</h3>
+                    <p>Analyze road safety problems using AI.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">📷</div>
+                    <h3>Live Camera</h3>
+                    <p>Detect road issues using camera input.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h3>Data Analytics</h3>
+                    <p>Understand road safety data and trends.</p>
+                </div>
+
+            </div>
+
+            <a
+                class="launch-button"
+                href="https://road-rakshak-20-jzleaae4sshggbonmgakea.streamlit.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                🚀 Launch Road Rakshak
+            </a>
+
+            <a
+                class="github-button"
+                href="https://github.com/aslammd31/Road-Rakshak-2.0"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                💻 View GitHub
+            </a>
+
+            <div class="footer">
+                © 2026 Road Rakshak 2.0 · AI for Safer Roads
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
