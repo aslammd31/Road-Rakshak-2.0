@@ -1,13 +1,13 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
 from PIL import Image
 import pandas as pd
 import matplotlib.pyplot as plt
 
 # =====================================================
-# LOAD GEMINI API KEY
+# LOAD ENVIRONMENT VARIABLES
 # =====================================================
 load_dotenv()
 
@@ -17,7 +17,10 @@ if not API_KEY:
     st.error("❌ GOOGLE_API_KEY not found.")
     st.stop()
 
-genai.configure(api_key=API_KEY)
+client = genai.Client(api_key=API_KEY)
+
+# Current Gemini model
+MODEL_NAME = "gemini-2.5-flash"
 
 # =====================================================
 # PAGE CONFIG
@@ -37,27 +40,33 @@ st.markdown("""
     background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     color: white;
 }
+
 h1 {
     text-align:center;
     font-weight:800;
     color:white;
 }
+
 h2, h3 {
     color:#e8f1ff;
 }
+
 .stTabs [data-baseweb="tab-list"] {
     gap:12px;
 }
+
 .stTabs [data-baseweb="tab"] {
     background-color: rgba(255,255,255,0.08);
     border-radius:10px;
     padding:10px 20px;
     color:white;
 }
+
 .stTabs [aria-selected="true"] {
     background: linear-gradient(90deg,#ff416c,#ff4b2b);
     font-weight:bold;
 }
+
 .stButton>button {
     background: linear-gradient(90deg,#ff416c,#ff4b2b);
     color:white;
@@ -66,9 +75,11 @@ h2, h3 {
     padding:10px 20px;
     font-weight:bold;
 }
+
 .stButton>button:hover {
     transform:scale(1.05);
 }
+
 .result-card {
     background:white;
     color:black;
@@ -117,20 +128,30 @@ with tab1:
 
     if uploaded_image:
         image = Image.open(uploaded_image)
-        st.image(image, use_container_width=True)
+
+        st.image(
+            image,
+            use_container_width=True
+        )
 
         if st.button("Analyze Road Condition"):
+
             with st.spinner("Analyzing road condition..."):
-                model = genai.GenerativeModel("gemini-1.5-flash")
 
                 prompt = """
-Detect ONE hazard:
+Detect ONE road hazard from the image.
+
+Possible hazards:
 - Pothole
 - Waterlogging
 - Broken streetlight
 - Traffic sign obstruction
+- No Hazard
 
-Assign severity: Low, Medium, High.
+Assign severity:
+- Low
+- Medium
+- High
 
 Reply STRICTLY in this format:
 
@@ -139,13 +160,18 @@ Severity:
 Explanation:
 """
 
-                response = model.generate_content(
-                    [{"role": "user", "parts": [prompt, image]}]
+                response = client.models.generate_content(
+                    model=MODEL_NAME,
+                    contents=[
+                        prompt,
+                        image
+                    ]
                 )
 
                 st.session_state.hazard_result = response.text
 
                 st.success("✅ Analysis Completed")
+
                 st.markdown(
                     f"<div class='result-card'>{response.text}</div>",
                     unsafe_allow_html=True
@@ -157,25 +183,42 @@ Explanation:
 with tab2:
     st.header("📷 Live Camera Road Detection")
 
-    camera_image = st.camera_input("Capture live road image")
+    camera_image = st.camera_input(
+        "Capture live road image"
+    )
 
     if camera_image:
-        live_image = Image.open(camera_image)
-        st.image(live_image, use_container_width=True)
 
-        if st.button("Analyze Live Road Condition", key="live"):
-            with st.spinner("Analyzing live image..."):
-                model = genai.GenerativeModel("gemini-1.5-flash")
+        live_image = Image.open(camera_image)
+
+        st.image(
+            live_image,
+            use_container_width=True
+        )
+
+        if st.button(
+            "Analyze Live Road Condition",
+            key="live"
+        ):
+
+            with st.spinner(
+                "Analyzing live image..."
+            ):
 
                 prompt = """
-Detect ONE hazard:
+Detect ONE road hazard from the image.
+
+Possible hazards:
 - Pothole
 - Waterlogging
 - Broken streetlight
 - Traffic sign obstruction
 - No Hazard
 
-Assign severity: Low, Medium, High.
+Assign severity:
+- Low
+- Medium
+- High
 
 Reply STRICTLY in this format:
 
@@ -184,11 +227,18 @@ Severity:
 Explanation:
 """
 
-                response = model.generate_content(
-                    [{"role": "user", "parts": [prompt, live_image]}]
+                response = client.models.generate_content(
+                    model=MODEL_NAME,
+                    contents=[
+                        prompt,
+                        live_image
+                    ]
                 )
 
-                st.success("✅ Live Analysis Completed")
+                st.success(
+                    "✅ Live Analysis Completed"
+                )
+
                 st.markdown(
                     f"<div class='result-card'>{response.text}</div>",
                     unsafe_allow_html=True
@@ -200,45 +250,113 @@ Explanation:
 with tab3:
     st.header("Upload Accident Data (CSV)")
 
-    csv_file = st.file_uploader("Upload accident dataset", type=["csv"])
+    csv_file = st.file_uploader(
+        "Upload accident dataset",
+        type=["csv"]
+    )
 
     if csv_file:
+
         df = pd.read_csv(csv_file)
-        df.columns = df.columns.str.strip().str.lower()
+
+        df.columns = (
+            df.columns
+            .str.strip()
+            .str.lower()
+        )
 
         st.dataframe(df.head())
 
+        # ---------------------------------------------
+        # LOCATION ANALYSIS
+        # ---------------------------------------------
         if "location" in df.columns:
-            st.session_state.top_location = df["location"].value_counts().idxmax()
-            count = df["location"].value_counts().max()
-            st.info(f"📍 Most Accident-Prone Location: **{st.session_state.top_location}** ({count} cases)")
+
+            st.session_state.top_location = (
+                df["location"]
+                .value_counts()
+                .idxmax()
+            )
+
+            count = (
+                df["location"]
+                .value_counts()
+                .max()
+            )
+
+            st.info(
+                f"📍 Most Accident-Prone Location: "
+                f"**{st.session_state.top_location}** "
+                f"({count} cases)"
+            )
 
             fig, ax = plt.subplots()
-            df["location"].value_counts().head(5).plot(kind="bar", ax=ax)
+
+            (
+                df["location"]
+                .value_counts()
+                .head(5)
+                .plot(
+                    kind="bar",
+                    ax=ax
+                )
+            )
+
             ax.set_xlabel("Location")
             ax.set_ylabel("Accidents")
+
             st.pyplot(fig)
 
+        # ---------------------------------------------
+        # CAUSE ANALYSIS
+        # ---------------------------------------------
         if "cause" in df.columns:
-            st.session_state.top_cause = df["cause"].value_counts().idxmax()
-            st.warning(f"⚠️ Most Common Cause: **{st.session_state.top_cause}**")
+
+            st.session_state.top_cause = (
+                df["cause"]
+                .value_counts()
+                .idxmax()
+            )
+
+            st.warning(
+                f"⚠️ Most Common Cause: "
+                f"**{st.session_state.top_cause}**"
+            )
 
 # =====================================================
 # TAB 4 — CIVIC REPORTING
 # =====================================================
 with tab4:
-    st.header("Generate Official Complaint Letter")
 
-    if st.button("Generate Complaint Letter"):
+    st.header(
+        "Generate Official Complaint Letter"
+    )
+
+    if st.button(
+        "Generate Complaint Letter"
+    ):
+
         if st.session_state.hazard_result is None:
-            st.warning("⚠️ Analyze an image first.")
-        elif st.session_state.top_location is None or st.session_state.top_cause is None:
-            st.warning("⚠️ Upload accident CSV first.")
+
+            st.warning(
+                "⚠️ Analyze an image first."
+            )
+
+        elif (
+            st.session_state.top_location is None
+            or
+            st.session_state.top_cause is None
+        ):
+
+            st.warning(
+                "⚠️ Upload accident CSV first."
+            )
+
         else:
-            model = genai.GenerativeModel("gemini-1.5-flash")
 
             prompt = f"""
-Write a professional complaint letter to the Municipal Commissioner.
+Write a professional complaint letter
+to the Municipal Commissioner.
 
 Hazard Details:
 {st.session_state.hazard_result}
@@ -248,11 +366,20 @@ Location:
 
 Cause:
 {st.session_state.top_cause}
+
+The letter should be formal and clearly
+request appropriate road-safety action.
 """
 
-            letter = model.generate_content(prompt)
+            letter = client.models.generate_content(
+                model=MODEL_NAME,
+                contents=prompt
+            )
 
-            st.subheader("📜 Generated Complaint Letter")
+            st.subheader(
+                "📜 Generated Complaint Letter"
+            )
+
             st.markdown(
                 f"<div class='result-card'>{letter.text}</div>",
                 unsafe_allow_html=True
@@ -268,8 +395,15 @@ Cause:
 # FOOTER
 # =====================================================
 st.markdown("""
-<hr style="margin-top:40px; border:0.5px solid rgba(255,255,255,0.2);">
-<p style='text-align:center;color:#cfd8dc;font-size:14px;'>
-🚦 Road Rakshak 2.0 — Built with ❤️ to make roads safer and smarter
+<hr style="margin-top:40px;
+border:0.5px solid rgba(255,255,255,0.2);">
+
+<p style='text-align:center;
+color:#cfd8dc;
+font-size:14px;'>
+
+🚦 Road Rakshak 2.0 —
+Built with ❤️ to make roads safer and smarter
+
 </p>
 """, unsafe_allow_html=True)
